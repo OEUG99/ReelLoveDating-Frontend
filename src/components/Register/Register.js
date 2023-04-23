@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 function Register() {
     const navigate = useNavigate()
 
-    async function handleClick(username, password) {
+    async function handleClick(email, password) {
         // POST request using fetch inside useEffect React hook
 
         const requestOptions = {
@@ -17,27 +17,29 @@ function Register() {
             },
             body:
                 JSON.stringify({
-                    "username": username,
+                    "email": email,
                     "password": password,
                 })
 
         }
 
-        let response = await fetch("http://localhost:8001/api/v1/auth/register", requestOptions);
+        let response = await fetch("http://localhost:8000/api/auth/register", requestOptions);
 
         if (response.ok) {
-            let token = await response.json();
+            response.text().then(text => {
+                console.log('Response text:', text);
+                try {
+                    let token = text
 
-            token = token['token']
-            // go to paste page using react router dom
-            console.log(token);
-
-            // saving JWT token to client
-            localStorage.setItem('jwtToken', token);
-            navigate('/')
-
+                    // saving JWT token to client
+                    localStorage.setItem('jwtToken', token);
+                    navigate('/');
+                } catch (e) {
+                    console.error('Error parsing JSON:', e);
+                }
+            });
         } else {
-            console.log("response not good (sometimes this is because username taken)")
+            console.log("response not good (sometimes this is because email taken)");
         }
     }
 
